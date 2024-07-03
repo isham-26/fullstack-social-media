@@ -14,16 +14,16 @@ export default function Feed({ user }) {
     const fetchPost = async () => {
       const res = user?.username
       ? await axios.get(`${url}/posts/profile/${user?.username}`)
-         : await axios.get(`${url}/posts/allpost/${state.user._id}`);
+         : await axios.get(`${url}/posts/allpost/${state?.user._id}`);
       setPosts(res.data);
     };
     fetchPost();
-  }, [user,state.user._id]);
+  }, [user?.username,state?.user._id]);
 
   return (
     <div className="feed">
       <div className="feedWrapper">
-        {!user?.username||state.user.username===user?.username&&<Share />}
+        {((!user?.username)||(state.user.username===user?.username))&&<Share />}
         {posts.map((p) => (
           <Post key={p._id} post={p} />
         ))}

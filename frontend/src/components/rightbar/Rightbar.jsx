@@ -1,5 +1,4 @@
 import "./rightbar.css";
-import { Users } from "../../dummyData";
 import Online from "../online/Online";
 import ad from "../../images/assets/ad.png";
 // import person from "../../images/assets/person/1.jpeg";
@@ -7,43 +6,51 @@ import { useContext, useEffect, useState } from "react";
 import { AppContext } from "../context/contextProvider";
 import { url } from "../../utility";
 import axios from "axios";
-import avtar from "../../images/noavtar.jpg"
+import avtar from "../../images/noavtar.jpg";
 import { Link } from "react-router-dom";
 export default function Rightbar({ user }) {
   const { state, dispatch } = useContext(AppContext);
-  const [foll, setfoll] = useState(state.user.following.includes(user?._id));
-  const [friends, setfriends] = useState([]);
+  const [foll, setFoll] = useState();
+  const [followes, setFollowers] = useState();
+  const [followings, setFollowings] = useState();
+  const [friends, setFriends] = useState([]);
+  useEffect(()=>{
+    setFoll(state.user.following.includes(user?._id))
+    user?.followers&&setFollowers(user?.followers.length)
+    user?.following&&setFollowings(user?.following.length)
+  },[user,state.user])
   useEffect(() => {
     const getFriend = async () => {
       try {
-        const res = await axios.get(`${url}/users/friends/${state.user._id}`);
-        setfriends(res.data);
+        const res = await axios.get(`${url}/users/friends/${user?._id}`);
+        setFriends(res.data);
       } catch (err) {}
     };
     getFriend();
-  }, []);
+  }, [user?._id]);
   const followhandle = async () => {
     try {
       if (foll) {
-        await axios.put(`${url}/users/${user._id}/unfollow`, {
+        await axios.put(`${url}/users/${user?._id}/unfollow`, {
           userId: state.user._id,
         });
+
         dispatch({
           type: "UNFOLLOW",
-          payload: user._id,
+          payload: user?._id,
         });
       } else {
-        await axios.put(`${url}/users/${user._id}/follow`, {
+        await axios.put(`${url}/users/${user?._id}/follow`, {
           userId: state.user._id,
         });
         dispatch({
           type: "FOLLOW",
-          payload: user._id,
+          payload: user?._id,
         });
       }
     } catch (err) {}
 
-    setfoll(!foll);
+    setFoll(!foll);
   };
   const HomeRightbar = () => {
     return (
@@ -55,7 +62,7 @@ export default function Rightbar({ user }) {
           </span>
         </div>
         <img className="rightbarAd" src={ad} alt="" />
-        <h4 className="rightbarTitle">Online Friends</h4>
+        <h4 className="rightbarTitle">Online Friends </h4>
         <ul className="rightbarFriendList">
           {friends.map((u, indx) => (
             <Online key={indx} user={u} />
@@ -69,8 +76,8 @@ export default function Rightbar({ user }) {
     return (
       <>
         <div className="flex gap-20 items-center">
-          <h4 className="rightbarTitle">User information</h4>
-          {state.user._id !== user?._id && (
+          <h4 className="rightbarTitle">User information </h4>
+          {state.user.username !== user?.username && (
             <button
               className="bg-blue-500 py-1 px-2 text-white rounded-sm"
               onClick={followhandle}
@@ -78,19 +85,22 @@ export default function Rightbar({ user }) {
               {foll ? "unfollow" : "follow"}
             </button>
           )}
+          {state.user.username === user?.username && (
+            <button
+              className="bg-blue-500 py-1 px-2 text-white rounded-sm"
+            >
+              Logout
+            </button>
+          )}
         </div>
         <div className="rightbarInfo">
-          <div className="rightbarInfoItem">
-            <span className="rightbarInfoKey">City:</span>
-            <span className="rightbarInfoValue">New York</span>
+        <div className="rightbarInfoItem">
+            <span className="rightbarInfoKey">Followers:</span>
+            <span className="rightbarInfoValue">{followes}</span>
           </div>
           <div className="rightbarInfoItem">
-            <span className="rightbarInfoKey">From:</span>
-            <span className="rightbarInfoValue">Madrid</span>
-          </div>
-          <div className="rightbarInfoItem">
-            <span className="rightbarInfoKey">Relationship:</span>
-            <span className="rightbarInfoValue">Single</span>
+            <span className="rightbarInfoKey">Followings</span>
+            <span className="rightbarInfoValue">{followings}</span>
           </div>
         </div>
         <h4 className="rightbarTitle">User friends</h4>
@@ -98,10 +108,16 @@ export default function Rightbar({ user }) {
           {friends.map((friend, index) => {
             return (
               <Link to={`/profile/${friend.username}`} key={index}>
-              <div className="rightbarFollowing">
-                <img src={friend?.profilePic||avtar} alt="" className="rightbarFollowingImg" />
-                <span className="rightbarFollowingName">{friend.username}</span>
-              </div>
+                <div className="rightbarFollowing">
+                  <img
+                    src={friend?.profilePic || avtar}
+                    alt=""
+                    className="rightbarFollowingImg"
+                  />
+                  <span className="rightbarFollowingName">
+                    {friend.username}
+                  </span>
+                </div>
               </Link>
             );
           })}

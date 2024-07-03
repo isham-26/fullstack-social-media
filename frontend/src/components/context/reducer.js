@@ -22,6 +22,7 @@ export const reducer=(state,action)=>{
             return{
                ...state,
                user:{
+                ...state.user,
                  following:[...state.user.following,action.payload]
                }
             }
@@ -29,6 +30,7 @@ export const reducer=(state,action)=>{
             return{
                 ...state,
                 user:{
+                  ...state.user,
                   following:state.user.following.filter((id)=>id!==action.payload)
                 }
             }

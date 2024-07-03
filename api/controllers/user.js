@@ -66,40 +66,51 @@ export const getuserbyname = async (req, res) => {
   }
 };
 export const follow=async(req,res)=>{
-    if(req.params.id!==req.body.userId){
+    if(req.body.userId!==req.params.id){
 
         try{
+          
+          console.log("follow ",req.params.id);
+
             const searchUser=await User.findById(req.params.id);
+            
             const currUser=await User.findById(req.body.userId)
+            
             if(!searchUser.followers.includes(req.body.userId)){
+              
                 await searchUser.updateOne({$push:{followers:req.body.userId}})
+                
                 await currUser.updateOne({$push:{following:req.params.id}})
                 
+                
+                res.status(200).json("user has been follow")
             }else{
-              res.status(403).json("you already follow this user!")
+              res.status(200).json("you already follow this user!")
             }
-            res.status(200).json("user has been follow")
+            
         }catch(err){
             res.status(500).json(err)
         }
 
     }
     else{
-        res.status(500).json("not follow yourself")
+        res.status(403).json("not follow yourself")
     }
 }
 export const unfollow=async(req,res)=>{
-    if(req.params.id!==req.body.userId){
+    if(req.body.userId!==req.params.id){
 
         try{
+          console.log("unfolow controller started")
             const searchUser=await User.findById(req.params.id);
             const currUser=await User.findById(req.body.userId)
             if(searchUser.followers.includes(req.body.userId)){
                 await searchUser.updateOne({$pull:{followers:req.body.userId}})
                 await currUser.updateOne({$pull:{following:req.params.id}})
+                console.log("unfolow controller done")
                 res.status(200).json("user has been unfollow")
             }else{
-                res.status(403).json("you already unfollow this user!")
+                res.status(200).json("you already unfollow this user!")
             }
         }catch(err){
             res.status(500).json(err)
@@ -107,7 +118,7 @@ export const unfollow=async(req,res)=>{
 
     }
     else{
-        res.status(500).json("not follow yourself")
+        res.status(403).json("not follow yourself")
     }
 }
 export const getfriend = async (req, res) => {

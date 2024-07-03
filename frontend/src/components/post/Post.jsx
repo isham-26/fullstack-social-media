@@ -2,7 +2,7 @@ import "./post.css";
 import { useState,useEffect, useContext } from "react";
 import noavtar from "../../images/noavtar.jpg"
 import axios from "axios"
-import {format} from "timeago.js"
+// import {format} from "timeago.js"
 import { url } from "../../utility";
 import like from "../../images/assets/like.png"
 import heart from "../../images/assets/heart.png"
@@ -44,7 +44,7 @@ export default function Post({ post }) {
       <div className="postWrapper">
         <div className="postTop">
           <div className="postTopLeft">
-          <Link to={`profile/${user.username}`}>
+          <Link to={`/profile/${user.username}`}>
 
             <img
               className="postProfileImg"
@@ -55,7 +55,7 @@ export default function Post({ post }) {
             <span className="postUsername">
               {user.username}
             </span>
-            <span className="postDate">{format(post.createdAt)}</span>
+            <span className="postDate">{new Date(post.createdAt).toDateString()}</span>
           </div>
           <div className="postTopRight">
           </div>
